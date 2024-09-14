@@ -3,7 +3,6 @@ import networkx as nx
 import os
 import ast
 
-
 # Define the root directory for the project
 root_dir = "Loop-Labyrinth-Analysis"
 
@@ -87,10 +86,10 @@ def create_import_graph(resolved_imports, resolved_function_imports):
     
     return graph
 
-# Visualize the graph using PyVis
+# Visualize the graph using PyVis with Physics Configuration
 def visualize_graph_pyvis(graph):
     net = Network(height="750px", width="100%", directed=True)
-    
+
     # Add nodes
     for node in graph.nodes():
         net.add_node(node, label=node, color="skyblue", title=node)
@@ -102,11 +101,29 @@ def visualize_graph_pyvis(graph):
             net.add_edge(edge[0], edge[1], title=function_name, color='red', label=function_name)
         else:
             net.add_edge(edge[0], edge[1], color='gray')
-    
-    # Write the graph to an HTML file
-    net.write_html("import_graph.html")  # Use write_html instead of show()
 
+    # Enable physics for free movement and dragging
+    net.set_options("""
+    var options = {
+      "physics": {
+        "enabled": true,
+        "solver": "forceAtlas2Based",
+        "forceAtlas2Based": {
+          "gravitationalConstant": -50,
+          "centralGravity": 0.005,
+          "springLength": 100,
+          "springConstant": 0.08
+        },
+        "minVelocity": 0.75
+      },
+      "interaction": {
+        "dragNodes": true
+      }
+    }
+    """)
 
+    # Write the graph to an HTML file without attempting to open it
+    net.write_html("import_graph.html")
 # Run the process
 imports_map, function_imports_map = gather_imports(root_dir)
 resolved_imports, resolved_function_imports = resolve_imports(imports_map, function_imports_map)
